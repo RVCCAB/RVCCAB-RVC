@@ -1910,30 +1910,30 @@ def download_from_url(url, model):
     url = url.strip()
     if url == '':
         return "Bağlantı adresi boş bırakılamaz."
-    zip_dirs = ["zips", "unzips"]
+    zip_dirs = ["/content/zips", "/content/unzips"]
     for directory in zip_dirs:
         if os.path.exists(directory):
             shutil.rmtree(directory)
-    os.makedirs("zips", exist_ok=True)
-    os.makedirs("unzips", exist_ok=True)
+    os.makedirs("/content/zips", exist_ok=True)
+    os.makedirs("/content/unzips", exist_ok=True)
     zipfile = model + '.zip'
-    zipfile_path = './zips/' + zipfile
+    zipfile_path = '/content/zips/' + zipfile
     MODELEPOCH = ''
     
     if "drive.google.com" in url:
         subprocess.run(["gdown", url, "--fuzzy", "-O", zipfile_path])
     elif "mega.nz" in url:
         m = Mega()
-        m.download_url(url, './zips')
+        m.download_url(url, '/content/zips')
     else:
-        subprocess.run(["wget", url, "-O", f"./zips/{zipfile}"])
-    for filename in os.listdir("./zips"):
+        subprocess.run(["wget", url, "-O", f"/content/zips/{zipfile}"])
+    for filename in os.listdir("/content/zips"):
         if filename.endswith(".zip"):
-            zipfile_path = os.path.join("./zips/",filename)
-            shutil.unpack_archive(zipfile_path, "./unzips", 'zip')
+            zipfile_path = os.path.join("/content/zips/",filename)
+            shutil.unpack_archive(zipfile_path, "/content/unzips", 'zip')
         else:
             return "Arşivden çıkartılacak zip dosyası bulunamadı."
-    for root, dirs, files in os.walk('./unzips'):
+    for root, dirs, files in os.walk('/content/unzips'):
         for file in files:
             if "G_" in file:
                 MODELEPOCH = file.split("G_")[1].split(".")[0]
@@ -1942,10 +1942,10 @@ def download_from_url(url, model):
         for file in files:
             file_path = os.path.join(root, file)
             if file.endswith(".npy") or file.endswith(".index"):
-                subprocess.run(["mkdir", "-p", f"./logs/{model}"])
-                subprocess.run(["mv", file_path, f"./logs/{model}/"])
+                subprocess.run(["mkdir", "-p", f"/content/RVCCAB/logs/{model}"])
+                subprocess.run(["mv", file_path, f"/content/RVCCAB/logs/{model}/"])
             elif "G_" not in file and "D_" not in file and file.endswith(".pth"):
-                subprocess.run(["mv", file_path, f"./weights/{model}.pth"])
+                subprocess.run(["mv", file_path, f"/content/RVCCAB/weights/{model}.pth"])
     shutil.rmtree("zips")
     shutil.rmtree("unzips")
     return "Başarıyla tamamlandı."
@@ -1954,26 +1954,26 @@ def download_from_pc(model):
     file_path = model.name
     modelinismi = file_base_name(model.name)
 
-    zip_dirs = ["zips", "unzips"]
+    zip_dirs = ["/content/zips", "/content/unzips"]
     for directory in zip_dirs:
         if os.path.exists(directory):
             shutil.rmtree(directory)
-    os.makedirs("zips", exist_ok=True)
-    os.makedirs("unzips", exist_ok=True)
+    os.makedirs("/content/zips", exist_ok=True)
+    os.makedirs("/content/unzips", exist_ok=True)
     zipfile_name = model.name
-    zipfile_path = './zips/' + zipfile_name
+    zipfile_path = '/content/zips/' + zipfile_name
     MODELEPOCH = ''
-    shutil.move(file_path, './zips')
+    shutil.move(file_path, '/content/zips')
 
-    for filename in os.listdir("./zips"):
+    for filename in os.listdir("/content/zips"):
         if filename.endswith(".zip"):
-            zipfile_path = os.path.join("./zips/", filename)
+            zipfile_path = os.path.join("/content/zips/", filename)
             with zipfile.ZipFile(zipfile_path, 'r') as zip_ref:
-                zip_ref.extractall("./unzips")
+                zip_ref.extractall("/content/unzips")
         else:
             return "Arşivden çıkartılacak zip dosyası bulunamadı."
     
-    for root, dirs, files in os.walk('./unzips'):
+    for root, dirs, files in os.walk('/content/unzips'):
         for file in files:
             if "G_" in file:
                 MODELEPOCH = file.split("G_")[1].split(".")[0]
@@ -1982,10 +1982,10 @@ def download_from_pc(model):
         for file in files:
             file_path = os.path.join(root, file)
             if file.endswith(".npy") or file.endswith(".index"):
-                os.makedirs(f"./logs/{modelinismi}", exist_ok=True)
-                shutil.move(file_path, f"./logs/{modelinismi}/")
+                os.makedirs(f"/content/RVCCAB/logs/{modelinismi}", exist_ok=True)
+                shutil.move(file_path, f"/content/RVCCAB/logs/{modelinismi}/")
             elif "G_" not in file and "D_" not in file and file.endswith(".pth"):
-                shutil.move(file_path, f"./weights/{modelinismi}.pth")
+                shutil.move(file_path, f"/content/RVCCAB/weights/{modelinismi}.pth")
                 shutil.rmtree("zips")
                 shutil.rmtree("unzips")
     return "Başarıyla tamamlandı."
@@ -2006,18 +2006,18 @@ def list_files_in_current_directory():
 def save_to_wav(dropbox):
     file_path=dropbox.name
     
-    if os.path.exists(os.path.join('/audios/', file_path)):
+    if os.path.exists(os.path.join('/content/RVCCAB/audios', file_path)):
         return "Bu dosya adıyla gönderilmiş bir ses dosyası var. Dosya adını değiştirip tekrar gönder."
     else:
-        shutil.move(file_path,'./audios')
+        shutil.move(file_path,'/content/RVCCAB/audios')
         return "Başarıya yüklendi: ", os.path.basename(file_path)
 
 
 def datasetcreate(file, auto_delete_original_acapella=True, save_to_drive=False):
     file_path = file.name
-    shutil.move(file_path, './EasyDataset')
+    shutil.move(file_path, '/content/EasyDataset')
     dataset_name = generate_random_string() 
-    os.chdir('./EasyDataset')
+    os.chdir('/content/EasyDataset')
     for filename in os.listdir():
         if filename.endswith(".wav"):
             sound = AudioSegment.from_wav(filename)
@@ -2047,22 +2047,22 @@ def datasetcreate(file, auto_delete_original_acapella=True, save_to_drive=False)
         wav_file.close()
         os.remove(filename)
 
-    os.makedirs(f'../dataset/{dataset_name}', exist_ok=True)
+    os.makedirs(f'/content/dataset/{dataset_name}', exist_ok=True)
     for everything in os.listdir('.'):
-        shutil.move(everything, f'../dataset/{dataset_name}')
+        shutil.move(everything, f'/content/dataset/{dataset_name}')
 
     os.chdir("..")
 
     if auto_delete_original_acapella:
-        shutil.rmtree('/EasyDataset')
-        os.makedirs('/EasyDataset', exist_ok=True)
+        shutil.rmtree('/content/EasyDataset')
+        os.makedirs('/content/EasyDataset', exist_ok=True)
     return(f"Dataset buraya kaydedildi: /content/dataset/{dataset_name} (Lütfen bu yolu kopyalayın sesi eğitirken lazım olacak.)")
 
 def save_models_to_drive():
-    logs_dir = './logs/'
-    weights_dir = './weights/'
+    logs_dir = '/content/RVCCAB/logs/'
+    weights_dir = '/content/RVCCAB/weights/'
     output_dir = '/content/drive/MyDrive/Finished/'
-    finalsavetemp_dir = './finalsavetemp/'
+    finalsavetemp_dir = '/content/RVCCAB/finalsavetemp/'
 
 
     os.makedirs(output_dir, exist_ok=True)
