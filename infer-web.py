@@ -1986,8 +1986,8 @@ def download_from_pc(model):
                 shutil.move(file_path, f"/content/RVCCAB/logs/{modelinismi}/")
             elif "G_" not in file and "D_" not in file and file.endswith(".pth"):
                 shutil.move(file_path, f"/content/RVCCAB/weights/{modelinismi}.pth")
-                shutil.rmtree("zips")
-                shutil.rmtree("unzips")
+    shutil.rmtree("/content/zips")
+    shutil.rmtree("/content/unzips")
     return "Başarıyla tamamlandı."
 
 

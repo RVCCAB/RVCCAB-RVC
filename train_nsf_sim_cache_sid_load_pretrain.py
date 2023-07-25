@@ -458,7 +458,7 @@ def train_and_evaluate(
             if global_step % hps.train.log_interval == 0:
                 lr = optim_g.param_groups[0]["lr"]
                 logger.info(
-                    "Öğrenen epoch: {} [{:.0f}%]".format(
+                    "Öğreniyor: {} Epoch [{:.0f}%]".format(
                         epoch, 100.0 * batch_idx / len(train_loader)
                     )
                 )
@@ -594,7 +594,7 @@ def train_and_evaluate(
             os._exit(2333333)
 
     if rank == 0:
-        logger.info("====> Epoch: {} {}".format(epoch, epoch_recorder.record()))
+        logger.info("Öğrendi: {} Epoch {}".format(epoch, epoch_recorder.record()))
     if epoch >= hps.total_epoch and rank == 0:
         logger.info("Öğrenme işlemi tamamlandı, program kapatıldı.")
 
