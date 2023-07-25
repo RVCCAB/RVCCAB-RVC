@@ -2052,20 +2052,19 @@ def datasetcreate(file, auto_delete_original_acapella=True, save_to_drive=False)
     if auto_delete_original_acapella:
         shutil.rmtree('/content/EasyDataset')
         os.makedirs('/content/EasyDataset', exist_ok=True)
-    return(f"Dataset buraya kaydedildi: /content/dataset/{dataset_name} (Lütfen bu yolu kopyalayın sesi eğitirken lazım olacak.)")
+    return(f"{file.path} parçalara ayrıldı ve Dataset buraya kaydedildi: /content/dataset/{dataset_name} (Lütfen bu yolu kopyalayın sesi eğitirken lazım olacak.)")
 
 def save_models_to_drive():
-    logs_dir = '/content/RVCCAB/logs/'
-    weights_dir = '/content/RVCCAB/weights/'
+    logs_dir = './logs/'
+    weights_dir = './weights/'
     output_dir = '/content/drive/MyDrive/Finished/'
-    finalsavetemp_dir = '/content/RVCCAB/finalsavetemp/'
-
+    finalsavetemp_dir = './finalsavetemp/'
 
     os.makedirs(output_dir, exist_ok=True)
 
     pth_files = [file for file in os.listdir(weights_dir) if file.endswith('.pth')]
 
-    skipped_files = set() 
+    skipped_files = set()
 
     for pth_file in pth_files:
         match = re.search(r'(.*)_s\d+.pth$', pth_file)
@@ -2103,7 +2102,7 @@ def save_models_to_drive():
         else:
             print(".index dosyası bulunamadı. Lütfen GUI üzerinden Index Dosyasını oluştur butonunu kullanarak index dosyası oluşturun.")
 
-        # Create zip and write files into it
+        # Zip dosyası oluştur ve içine dosyaları yaz
         with zipfile.ZipFile(os.path.join(output_dir, f'{folder}.zip'), 'w') as zipf:
             for root, dirs, files in os.walk(finalsavetemp_dir):
                 for file in files:
@@ -2111,10 +2110,10 @@ def save_models_to_drive():
 
         print(f'Arşiv dosyası oluşturuldu: {folder}.')
 
-        # Remove 'finalsavetemp'
+        # 'finalsavetemp' klasörünü sil
         shutil.rmtree(finalsavetemp_dir)
 
-        return('Yedekleme işlemi bitti. Tamamlanan dosyalar Google Driveda Finished klasörü içerisine kaydedildi. /content/drive/MyDrive/Finished.')
+    return 'Yedekleme işlemi bitti. Tamamlanan dosyalar Google Driveda Finished klasörü içerisine kaydedildi. /content/drive/MyDrive/Finished.'
 
 with gr.Blocks(theme=gr.themes.Soft(),css="footer {visibility: hidden}", title="RVC.CAB RVC WEB UI",favicon="") as app: 
     gr.HTML("<h1> RVC.CAB Detaylı RVC Arayüzüne Hoş Geldiniz </h1>")
