@@ -22,7 +22,7 @@ import threading
 from random import shuffle
 from subprocess import Popen
 from time import sleep
-
+import subprocess
 import faiss
 import ffmpeg
 import gradio as gr
@@ -2005,12 +2005,8 @@ def list_files_in_current_directory():
 
 def save_to_wav(dropbox):
     file_path=dropbox.name
-    
-    if os.path.exists(os.path.join('/content/RVCCAB/audios', file_path)):
-        return "Bu dosya adıyla gönderilmiş bir ses dosyası var. Dosya adını değiştirip tekrar gönder."
-    else:
-        shutil.move(file_path,'/content/RVCCAB/audios')
-        return "Başarıya yüklendi: ", os.path.basename(file_path)
+    shutil.move(file_path,'/content/RVCCAB/audios')
+    return os.path.basename(file_path)
 
 
 def datasetcreate(file, auto_delete_original_acapella=True, save_to_drive=False):
