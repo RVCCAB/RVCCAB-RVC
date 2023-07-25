@@ -2052,7 +2052,7 @@ def datasetcreate(file, auto_delete_original_acapella=True, save_to_drive=False)
     if auto_delete_original_acapella:
         shutil.rmtree('/content/EasyDataset')
         os.makedirs('/content/EasyDataset', exist_ok=True)
-    return(f"{file.path} parçalara ayrıldı ve Dataset buraya kaydedildi: /content/dataset/{dataset_name} (Lütfen bu yolu kopyalayın sesi eğitirken lazım olacak.)")
+    return(f"Dataset buraya kaydedildi: /content/dataset/{dataset_name} (Lütfen bu yolu kopyalayın sesi eğitirken lazım olacak.)")
 
 def save_models_to_drive():
     logs_dir = './logs/'
