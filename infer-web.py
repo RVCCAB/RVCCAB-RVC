@@ -1946,8 +1946,8 @@ def download_from_url(url, model):
                 subprocess.run(["mv", file_path, f"/content/RVCCAB/logs/{model}/"])
             elif "G_" not in file and "D_" not in file and file.endswith(".pth"):
                 subprocess.run(["mv", file_path, f"/content/RVCCAB/weights/{model}.pth"])
-    shutil.rmtree("zips")
-    shutil.rmtree("unzips")
+    shutil.rmtree("/content/zips")
+    shutil.rmtree("/content/unzips")
     return "Başarıyla tamamlandı."
 
 def download_from_pc(model):
@@ -2047,7 +2047,7 @@ def datasetcreate(file, auto_delete_original_acapella=True, save_to_drive=False)
     for everything in os.listdir('.'):
         shutil.move(everything, f'/content/dataset/{dataset_name}')
 
-    os.chdir("..")
+    os.chdir("/content/RVCCAB")
 
     if auto_delete_original_acapella:
         shutil.rmtree('/content/EasyDataset')
