@@ -698,40 +698,6 @@ def update_fshift_presets(preset, qfrency, tmbre):
     )
 
 
-def preprocess_dataset(trainset_dir, exp_dir, sr, n_p):
-    sr = sr_dict[sr]
-    os.makedirs("%s/logs/%s" % (now_dir, exp_dir), exist_ok=True)
-    f = open("%s/logs/%s/preprocess.log" % (now_dir, exp_dir), "w")
-    f.close()
-    cmd = (
-        config.python_cmd
-        + " trainset_preprocess_pipeline_print.py %s %s %s %s/logs/%s "
-        % (trainset_dir, sr, n_p, now_dir, exp_dir)
-        + str(config.noparallel)
-    )
-    print(cmd)
-    p = Popen(cmd, shell=True)  # , stdin=PIPE, stdout=PIPE,stderr=PIPE,cwd=now_dir
-    ###煞笔gr, popen read都非得全跑完了再一次性读取, 不用gr就正常读一句输出一句;只能额外弄出一个文本流定时读
-    done = [False]
-    threading.Thread(
-        target=if_done,
-        args=(
-            done,
-            p,
-        ),
-    ).start()
-    while 1:
-        with open("%s/logs/%s/preprocess.log" % (now_dir, exp_dir), "r") as f:
-            yield (f.read())
-        sleep(1)
-        if done[0]:
-            break
-    with open("%s/logs/%s/preprocess.log" % (now_dir, exp_dir), "r") as f:
-        log = f.read()
-    print(log)
-    yield log
-
-
 # but2.click(extract_f0,[gpus6,np7,f0method8,if_f0_3,trainset_dir4],[info2])
 def extract_f0_feature(gpus, n_p, f0method, if_f0, exp_dir, version19, echl):
     gpus = gpus.split("-")
@@ -2008,9 +1974,42 @@ def save_to_wav(dropbox):
     shutil.move(file_path,'./audios')
     return "Başarıya yüklendi: ", os.path.basename(file_path)
 
+def preprocess_dataset(trainset_dir, exp_dir, sr, n_p):
+    sr = sr_dict[sr]
+    os.makedirs("%s/logs/%s" % (now_dir, exp_dir), exist_ok=True)
+    f = open("%s/logs/%s/preprocess.log" % (now_dir, exp_dir), "w")
+    f.close()
+    cmd = (
+        config.python_cmd
+        + " trainset_preprocess_pipeline_print.py %s %s %s %s/logs/%s "
+        % (trainset_dir, sr, n_p, now_dir, exp_dir)
+        + str(config.noparallel)
+    )
+    print(cmd)
+    p = Popen(cmd, shell=True)  # , stdin=PIPE, stdout=PIPE,stderr=PIPE,cwd=now_dir
+    ###煞笔gr, popen read都非得全跑完了再一次性读取, 不用gr就正常读一句输出一句;只能额外弄出一个文本流定时读
+    done = [False]
+    threading.Thread(
+        target=if_done,
+        args=(
+            done,
+            p,
+        ),
+    ).start()
+    while 1:
+        with open("%s/logs/%s/preprocess.log" % (now_dir, exp_dir), "r") as f:
+            yield (f.read())
+        sleep(1)
+        if done[0]:
+            break
+    with open("%s/logs/%s/preprocess.log" % (now_dir, exp_dir), "r") as f:
+        log = f.read()
+    print(log)
+    yield log
 
 def datasetcreate(dataset_name, auto_delete_original_acapella=True, save_to_drive=False):
-    for filename in os.listdir('/content/EasyDataset'):
+    os.chdir("/content/EasyDataset")
+    for filename in os.listdir():
         if filename.endswith(".wav"):
             sound = AudioSegment.from_wav(filename)
             sound = sound.set_channels(1)
@@ -2039,18 +2038,18 @@ def datasetcreate(dataset_name, auto_delete_original_acapella=True, save_to_driv
         wav_file.close()
         os.remove(filename)
 
-    os.makedirs(f'/content/dataset/{dataset_name}', exist_ok=True)
+    os.makedirs(f'../dataset/{dataset_name}', exist_ok=True)
     for everything in os.listdir('.'):
-        shutil.move(everything, f'/content/dataset/{dataset_name}')
+        shutil.move(everything, f'../dataset/{dataset_name}')
 
-    os.chdir("..")
+    os.chdir("../RVCCAB")
 
     if auto_delete_original_acapella:
         shutil.rmtree('/EasyDataset')
         os.makedirs('/EasyDataset', exist_ok=True)
     return(f"Dataset buraya kaydedildi: /content/dataset/{dataset_name} (Lütfen bu yolu kopyalayın sesi eğitirken lazım olacak.)")
 
-def upload_to_dataset(files, dir):
+def upload_to_dataset(files, dir="/content/EasyDataset"):
     if dir == '':
         dir = '/content/EasyDataset'
     if not os.path.exists(dir):
@@ -2762,6 +2761,10 @@ with gr.Blocks(theme=gr.themes.Base(),css=css, title="RVC.CAB RVC WEB UI",favico
                         label="Vokal dosyası",
                         file_types=[".wav"]
                     )
+                    datasetnameismi = gr.Textbox(
+                        label="Son yüklediğiniz ses dosyaları için dataset ismi belirtin",
+                        interactive=True
+                    )
                     datasetprocessbtn = gr.Button(
                         "Dataseti işleme al",
                         variant="primary",
@@ -2772,7 +2775,7 @@ with gr.Blocks(theme=gr.themes.Base(),css=css, title="RVC.CAB RVC WEB UI",favico
                         interactive=False
                     )
                     datasetcreatedfile.upload(upload_to_dataset, inputs=[datasetcreatedfile], outputs=[datasetcreateoutput])
-                    datasetprocessbtn.click(datasetcreate, inputs=[], outputs=[datasetcreateoutput])
+                    datasetprocessbtn.click(datasetcreate, inputs=[datasetnameismi], outputs=[datasetcreateoutput])
         with gr.TabItem("Sıkça sorulan sorular"):
             try:
                 with open("docs/sss.md", "r", encoding="utf8") as f:
