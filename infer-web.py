@@ -2042,11 +2042,12 @@ def datasetcreate(dataset_name, auto_delete_original_acapella=True, save_to_driv
     for everything in os.listdir('.'):
         shutil.move(everything, f'../dataset/{dataset_name}')
 
-    os.chdir("../RVCCAB")
 
     if auto_delete_original_acapella:
         shutil.rmtree('/EasyDataset')
         os.makedirs('/EasyDataset', exist_ok=True)
+    os.chdir("../RVCCAB")
+
     return(f"Dataset buraya kaydedildi: /content/dataset/{dataset_name} (Lütfen bu yolu kopyalayın sesi eğitirken lazım olacak.)")
 
 def upload_to_dataset(files, dir="/content/EasyDataset"):
