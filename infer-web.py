@@ -2051,7 +2051,6 @@ def datasetcreate(dataset_name, auto_delete_original_acapella=True, save_to_driv
     return(f"Dataset buraya kaydedildi: /content/dataset/{dataset_name} (Lütfen bu yolu kopyalayın sesi eğitirken lazım olacak.)")
 
 def upload_to_dataset(files, dir):
-    gr.Warning('Datasetin yüklenmesini bekle...')
     if dir == '':
         dir = '/content/EasyDataset'
     if not os.path.exists(dir):
@@ -2061,7 +2060,6 @@ def upload_to_dataset(files, dir):
         path=file.name
         shutil.copy2(path,dir)
         count += 1
-    gr.Info(f'Bitti! {count} adet dosya yüklendi. Dataseti işle butonuna tıkla.')
     return f' {count} adet dosya {dir} dizinine yüklendi.'     
     
 
