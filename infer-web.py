@@ -22,7 +22,7 @@ import threading
 from random import shuffle
 from subprocess import Popen
 from time import sleep
-import subprocess
+
 import faiss
 import ffmpeg
 import gradio as gr
@@ -1722,7 +1722,7 @@ def print_page_details():
         print("    arg 5) speaker id: 0")
         print("    arg 6) transposition: 0")
         print("    arg 7) f0 method: harvest (pm, harvest, crepe, crepe-tiny, hybrid[x,x,x,x], mangio-crepe, mangio-crepe-tiny)")
-        print("    arg 8) crepe hop length: 160")
+        print("    arg 8) crepe hop length: 128")
         print("    arg 9) harvest median filter radius: 3 (0-7)")
         print("    arg 10) post resample rate: 0")
         print("    arg 11) mix volume envelope: 1")
@@ -1910,30 +1910,30 @@ def download_from_url(url, model):
     url = url.strip()
     if url == '':
         return "Bağlantı adresi boş bırakılamaz."
-    zip_dirs = ["/content/zips", "/content/unzips"]
+    zip_dirs = ["zips", "unzips"]
     for directory in zip_dirs:
         if os.path.exists(directory):
             shutil.rmtree(directory)
-    os.makedirs("/content/zips", exist_ok=True)
-    os.makedirs("/content/unzips", exist_ok=True)
+    os.makedirs("zips", exist_ok=True)
+    os.makedirs("unzips", exist_ok=True)
     zipfile = model + '.zip'
-    zipfile_path = '/content/zips/' + zipfile
+    zipfile_path = './zips/' + zipfile
     MODELEPOCH = ''
     
     if "drive.google.com" in url:
         subprocess.run(["gdown", url, "--fuzzy", "-O", zipfile_path])
     elif "mega.nz" in url:
         m = Mega()
-        m.download_url(url, '/content/zips')
+        m.download_url(url, './zips')
     else:
-        subprocess.run(["wget", url, "-O", f"/content/zips/{zipfile}"])
-    for filename in os.listdir("/content/zips"):
+        subprocess.run(["wget", url, "-O", f"./zips/{zipfile}"])
+    for filename in os.listdir("./zips"):
         if filename.endswith(".zip"):
-            zipfile_path = os.path.join("/content/zips/",filename)
-            shutil.unpack_archive(zipfile_path, "/content/unzips", 'zip')
+            zipfile_path = os.path.join("./zips/",filename)
+            shutil.unpack_archive(zipfile_path, "./unzips", 'zip')
         else:
             return "Arşivden çıkartılacak zip dosyası bulunamadı."
-    for root, dirs, files in os.walk('/content/unzips'):
+    for root, dirs, files in os.walk('./unzips'):
         for file in files:
             if "G_" in file:
                 MODELEPOCH = file.split("G_")[1].split(".")[0]
@@ -1942,38 +1942,38 @@ def download_from_url(url, model):
         for file in files:
             file_path = os.path.join(root, file)
             if file.endswith(".npy") or file.endswith(".index"):
-                subprocess.run(["mkdir", "-p", f"/content/RVCCAB/logs/{model}"])
-                subprocess.run(["mv", file_path, f"/content/RVCCAB/logs/{model}/"])
+                subprocess.run(["mkdir", "-p", f"./logs/{model}"])
+                subprocess.run(["mv", file_path, f"./logs/{model}/"])
             elif "G_" not in file and "D_" not in file and file.endswith(".pth"):
-                subprocess.run(["mv", file_path, f"/content/RVCCAB/weights/{model}.pth"])
-    shutil.rmtree("/content/zips")
-    shutil.rmtree("/content/unzips")
+                subprocess.run(["mv", file_path, f"./weights/{model}.pth"])
+    shutil.rmtree("zips")
+    shutil.rmtree("unzips")
     return "Başarıyla tamamlandı."
 
 def download_from_pc(model):
     file_path = model.name
     modelinismi = file_base_name(model.name)
 
-    zip_dirs = ["/content/zips", "/content/unzips"]
+    zip_dirs = ["zips", "unzips"]
     for directory in zip_dirs:
         if os.path.exists(directory):
             shutil.rmtree(directory)
-    os.makedirs("/content/zips", exist_ok=True)
-    os.makedirs("/content/unzips", exist_ok=True)
+    os.makedirs("zips", exist_ok=True)
+    os.makedirs("unzips", exist_ok=True)
     zipfile_name = model.name
-    zipfile_path = '/content/zips/' + zipfile_name
+    zipfile_path = './zips/' + zipfile_name
     MODELEPOCH = ''
-    shutil.move(file_path, '/content/zips')
+    shutil.move(file_path, './zips')
 
-    for filename in os.listdir("/content/zips"):
+    for filename in os.listdir("./zips"):
         if filename.endswith(".zip"):
-            zipfile_path = os.path.join("/content/zips/", filename)
+            zipfile_path = os.path.join("./zips/", filename)
             with zipfile.ZipFile(zipfile_path, 'r') as zip_ref:
-                zip_ref.extractall("/content/unzips")
+                zip_ref.extractall("./unzips")
         else:
             return "Arşivden çıkartılacak zip dosyası bulunamadı."
     
-    for root, dirs, files in os.walk('/content/unzips'):
+    for root, dirs, files in os.walk('./unzips'):
         for file in files:
             if "G_" in file:
                 MODELEPOCH = file.split("G_")[1].split(".")[0]
@@ -1982,12 +1982,12 @@ def download_from_pc(model):
         for file in files:
             file_path = os.path.join(root, file)
             if file.endswith(".npy") or file.endswith(".index"):
-                os.makedirs(f"/content/RVCCAB/logs/{modelinismi}", exist_ok=True)
-                shutil.move(file_path, f"/content/RVCCAB/logs/{modelinismi}/")
+                os.makedirs(f"./logs/{modelinismi}", exist_ok=True)
+                shutil.move(file_path, f"./logs/{modelinismi}/")
             elif "G_" not in file and "D_" not in file and file.endswith(".pth"):
-                shutil.move(file_path, f"/content/RVCCAB/weights/{modelinismi}.pth")
-    shutil.rmtree("/content/zips")
-    shutil.rmtree("/content/unzips")
+                shutil.move(file_path, f"./weights/{modelinismi}.pth")
+                shutil.rmtree("zips")
+                shutil.rmtree("unzips")
     return "Başarıyla tamamlandı."
 
 
@@ -2005,16 +2005,12 @@ def list_files_in_current_directory():
 
 def save_to_wav(dropbox):
     file_path=dropbox.name
-    shutil.move(file_path,'/content/RVCCAB/audios')
-    return os.path.basename(file_path)
+    shutil.move(file_path,'./audios')
+    return "Başarıya yüklendi: ", os.path.basename(file_path)
 
 
-def datasetcreate(file, auto_delete_original_acapella=True, save_to_drive=False):
-    file_path = file.name
-    shutil.move(file_path, '/content/EasyDataset')
-    dataset_name = generate_random_string() 
-    os.chdir('/content/EasyDataset')
-    for filename in os.listdir():
+def datasetcreate(dataset_name, auto_delete_original_acapella=True, save_to_drive=False):
+    for filename in os.listdir('/content/EasyDataset'):
         if filename.endswith(".wav"):
             sound = AudioSegment.from_wav(filename)
             sound = sound.set_channels(1)
@@ -2047,12 +2043,28 @@ def datasetcreate(file, auto_delete_original_acapella=True, save_to_drive=False)
     for everything in os.listdir('.'):
         shutil.move(everything, f'/content/dataset/{dataset_name}')
 
-    os.chdir("/content/RVCCAB")
+    os.chdir("..")
 
     if auto_delete_original_acapella:
-        shutil.rmtree('/content/EasyDataset')
-        os.makedirs('/content/EasyDataset', exist_ok=True)
+        shutil.rmtree('/EasyDataset')
+        os.makedirs('/EasyDataset', exist_ok=True)
     return(f"Dataset buraya kaydedildi: /content/dataset/{dataset_name} (Lütfen bu yolu kopyalayın sesi eğitirken lazım olacak.)")
+
+def upload_to_dataset(files, dir):
+    gr.Warning('Datasetin yüklenmesini bekle...')
+    if dir == '':
+        dir = '/content/EasyDataset'
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+    count = 0
+    for file in files:
+        path=file.name
+        shutil.copy2(path,dir)
+        count += 1
+    gr.Info(f'Bitti! {count} adet dosya yüklendi. Dataseti işle butonuna tıkla.')
+    return f' {count} adet dosya {dir} dizinine yüklendi.'     
+    
+
 
 def save_models_to_drive():
     logs_dir = './logs/'
@@ -2115,7 +2127,26 @@ def save_models_to_drive():
 
     return 'Yedekleme işlemi bitti. Tamamlanan dosyalar Google Driveda Finished klasörü içerisine kaydedildi. /content/drive/MyDrive/Finished.'
 
-with gr.Blocks(theme=gr.themes.Base(),css="footer {visibility: hidden}", title="RVC.CAB RVC WEB UI",favicon="") as app: 
+css = """
+#morismi {background-color: #4f46e5 !important}
+#morismi {color: white !important}
+footer {visibility: hidden}
+html {background-color: #0b0f19 !important}
+"""
+
+with gr.Blocks(theme=gr.themes.Base(),css=css, title="RVC.CAB RVC WEB UI",favicon="") as app: 
+    app.load(
+        None,
+        None,
+        _js="""
+  () => {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has('__theme')) {
+    params.set('__theme', 'dark');
+    window.location.search = params.toString();
+  }
+  }""",
+    )
     gr.HTML("<h1> RVC.CAB Detaylı RVC Arayüzüne Hoş Geldiniz </h1>")
     gr.Markdown(
         value="Bu arayüz <a href='https://github.com/Mangio621/Mangio-RVC-Fork' target='_blank'>Mangio RVC</a> tarafından yapılmış olup <a href='https://rvc.cab' target='_blank'>RVC.CAB</a> tarafından Türkçeleştirilmiş ve sadeleştirilmiştir."
@@ -2155,7 +2186,7 @@ with gr.Blocks(theme=gr.themes.Base(),css="footer {visibility: hidden}", title="
                 #input_audio_path2
 
                 
-                refresh_button = gr.Button("Model ve ses dosyalarını yenile", variant="primary")
+                refresh_button = gr.Button("Model ve ses dosyalarını yenile", variant="primary", elem_id="morismi")
 
                 spk_item = gr.Slider(
                     minimum=0,
@@ -2176,9 +2207,10 @@ with gr.Blocks(theme=gr.themes.Base(),css="footer {visibility: hidden}", title="
                             visible=False
                         )
 
+                        gr.Markdown("Vokal dosyanızın adında hiçbir şekilde Türkçe karakter ve boşluk bulunmasın.")
                         vocalaudiofile = gr.File(
                             file_types=[".mp3", ".wav", ".m4a"],
-                            label="Vokal dosyasını yükle (Adında Türkçe karakter ve boşluk olmasın)",
+                            label="Vokal dosyasını yükle",
                             show_label=True
                         )
                         vocalaudiofileoutput = gr.Textbox(
@@ -2193,6 +2225,7 @@ with gr.Blocks(theme=gr.themes.Base(),css="footer {visibility: hidden}", title="
                             value=get_audios(),
                             interactive=True,
                         )
+
 
                     with gr.Column():
                         input_audio1.change(fn=choveraudio,inputs=[],outputs=[input_audio0])
@@ -2224,7 +2257,7 @@ with gr.Blocks(theme=gr.themes.Base(),css="footer {visibility: hidden}", title="
                         vc_transform0 = gr.Number(
                             label="Transpoze (pitch) değeri", value=0
                         )
-                        but0 = gr.Button("Dönüştür", variant="primary")
+                        but0 = gr.Button("Dönüştür", variant="primary", elem_id="morismi")
 
                         #sid0.select(fn=match_index, inputs=sid0, outputs=file_index2)
                         
@@ -2507,7 +2540,7 @@ with gr.Blocks(theme=gr.themes.Base(),css="footer {visibility: hidden}", title="
                         interactive=True,
                         visible=False
                     )
-                    but1 = gr.Button(i18n("Ön işlemeyi başlat"), variant="primary")
+                    but1 = gr.Button(i18n("Ön işlemeyi başlat"), variant="primary", elem_id="morismi")
                     info1 = gr.Textbox(label=i18n("Log kayıtları"), value="")
                     but1.click(
                         preprocess_dataset, [trainset_dir4, exp_dir1, sr2, np7], [info1]
@@ -2544,7 +2577,7 @@ with gr.Blocks(theme=gr.themes.Base(),css="footer {visibility: hidden}", title="
                         )
                         
                         f0method8.change(fn=whethercrepeornah, inputs=[f0method8], outputs=[extraction_crepe_hop_length])
-                    but2 = gr.Button(i18n("Özellikleri çıkart"), variant="primary")
+                    but2 = gr.Button(i18n("Özellikleri çıkart"), variant="primary", elem_id="morismi")
                     info2 = gr.Textbox(label=i18n("Log kayıtları"), value="", max_lines=8)
                     but2.click(
                         extract_f0_feature,
@@ -2636,12 +2669,12 @@ with gr.Blocks(theme=gr.themes.Base(),css="footer {visibility: hidden}", title="
                             variant='primary',
                             visible=False,
                     )
-                    but3 = gr.Button("(1.) Eğitmeye başla", variant="primary", visible=True)
+                    but3 = gr.Button("(1.) Eğitmeye başla", variant="primary", visible=True, elem_id="morismi")
                     but3.click(fn=stoptraining, inputs=[gr.Number(value=0, visible=False)], outputs=[but3, butstop])
                     butstop.click(fn=stoptraining, inputs=[gr.Number(value=1, visible=False)], outputs=[butstop, but3])
                     
                     
-                    but4 = gr.Button(i18n("(2.) Index dosyasını oluştur"), variant="primary")
+                    but4 = gr.Button(i18n("(2.) Index dosyasını oluştur"), variant="primary", elem_id="morismi")
                     info3 = gr.Textbox(label=i18n("Log kayıtları"), value="", max_lines=10)
                     
                     if_save_every_weights18.change(fn=stepdisplay, inputs=[if_save_every_weights18], outputs=[save_epoch10])
@@ -2686,7 +2719,7 @@ with gr.Blocks(theme=gr.themes.Base(),css="footer {visibility: hidden}", title="
                     interactive=True
                 )
                 
-                downloadBtn = gr.Button(i18n("İndir"), variant="primary")
+                downloadBtn = gr.Button(i18n("İndir"), variant="primary", elem_id="morismi")
                 
                 modeldosyapc = gr.File(
                     file_types=[".zip"],
@@ -2710,13 +2743,13 @@ with gr.Blocks(theme=gr.themes.Base(),css="footer {visibility: hidden}", title="
                     [downloadoutput]
                 )
                 modeldosyapc.upload(download_from_pc, inputs=[modeldosyapc], outputs=[downloadoutput])
-
         with gr.TabItem("Dışarı aktar"):
             with gr.Column():
                 gr.Markdown("Eğitilen modellerin arşive alıp Google Drive'a aktartabilirsiniz.")
                 savebtn = gr.Button(
                     "Drive'a Kaydet",
-                    variant="primary"
+                    variant="primary",
+                    elem_id="morismi"
                 )
                 savebtnoutput = gr.Textbox(
                     label="Log kayıtları",
@@ -2727,15 +2760,21 @@ with gr.Blocks(theme=gr.themes.Base(),css="footer {visibility: hidden}", title="
             with gr.Group():
                 with gr.Column():
                     gr.Markdown("Arkaplan seslerinden ayırdığınız vokal dosyanızı ayıklamak için aşağıdan yükleyin. Yükleme tamamlanır tamamlanmaz ayıklama işlemi başlatılır ve dataset oluşturulur. /content/dataset/ klasörüne rastgele isimle kaydedilir.")
-                    datasetcreatedfile = gr.File(
+                    datasetcreatedfile = gr.Files(
                         label="Vokal dosyası",
                         file_types=[".wav"]
                     )
+                    datasetprocessbtn = gr.Button(
+                        "Dataseti işleme al",
+                        variant="primary",
+                        elem_id="morismi"
+                    )
                     datasetcreateoutput = gr.Textbox(
-                        label="Log kayıtları",
+                        label="Log kayıtları (Burada sonucun görüntülenmesini bekleyin)",
                         interactive=False
                     )
-                    datasetcreatedfile.upload(datasetcreate, inputs=[datasetcreatedfile], outputs=[datasetcreateoutput])
+                    datasetcreatedfile.upload(upload_to_dataset, inputs=[datasetcreatedfile], outputs=[datasetcreateoutput])
+                    datasetprocessbtn.click(datasetcreate, inputs=[], outputs=[datasetcreateoutput])
         with gr.TabItem("Sıkça sorulan sorular"):
             try:
                 with open("docs/sss.md", "r", encoding="utf8") as f:
