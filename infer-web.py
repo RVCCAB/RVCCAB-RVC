@@ -2115,7 +2115,7 @@ def save_models_to_drive():
 
     return 'Yedekleme işlemi bitti. Tamamlanan dosyalar Google Driveda Finished klasörü içerisine kaydedildi. /content/drive/MyDrive/Finished.'
 
-with gr.Blocks(theme=gr.themes.Soft(),css="footer {visibility: hidden}", title="RVC.CAB RVC WEB UI",favicon="") as app: 
+with gr.Blocks(theme=gr.themes.Base(),css="footer {visibility: hidden}", title="RVC.CAB RVC WEB UI",favicon="") as app: 
     gr.HTML("<h1> RVC.CAB Detaylı RVC Arayüzüne Hoş Geldiniz </h1>")
     gr.Markdown(
         value="Bu arayüz <a href='https://github.com/Mangio621/Mangio-RVC-Fork' target='_blank'>Mangio RVC</a> tarafından yapılmış olup <a href='https://rvc.cab' target='_blank'>RVC.CAB</a> tarafından Türkçeleştirilmiş ve sadeleştirilmiştir."
@@ -2175,13 +2175,24 @@ with gr.Blocks(theme=gr.themes.Soft(),css="footer {visibility: hidden}", title="
                             value=os.path.abspath(os.getcwd()).replace('\\', '/') + "/audios/" + "audio.wav",
                             visible=False
                         )
+
+                        vocalaudiofile = gr.File(
+                            file_types=[".mp3", ".wav", ".m4a"],
+                            label="Vokal dosyasını yükle (Adında Türkçe karakter ve boşluk olmasın)",
+                            show_label=True
+                        )
+                        vocalaudiofileoutput = gr.Textbox(
+                            label="Log kayıtları",
+                            interactive=False
+                        )
+                        vocalaudiofile.upload(save_to_wav, inputs=[vocalaudiofile], outputs=[vocalaudiofileoutput])
+
                         input_audio1 = gr.Dropdown(
                             label="Ses dosyası seç",
                             choices=sorted(audio_paths),
                             value=get_audios(),
                             interactive=True,
                         )
-
 
                     with gr.Column():
                         input_audio1.change(fn=choveraudio,inputs=[],outputs=[input_audio0])
@@ -2310,7 +2321,7 @@ with gr.Blocks(theme=gr.themes.Soft(),css="footer {visibility: hidden}", title="
                         ##formant_refresh_button.click(fn=update_fshift_presets, inputs=[formant_preset, qfrency, tmbre], outputs=[formant_preset, qfrency, tmbre])
                     f0_file = gr.File(label=i18n("F0曲线文件, 可选, 一行一个音高, 代替默认F0及升降调"), visible=False)
                     with gr.Group():
-                        vc_output2 = gr.Audio(label=i18n("Sonucu indir"))
+                        vc_output2 = gr.Audio(label=i18n("Sonucu indir"), interactive=True)
                         vc_output1 = gr.Textbox(label="Log Kayıtları")
                     but0.click(
                         vc_single,
@@ -2700,21 +2711,6 @@ with gr.Blocks(theme=gr.themes.Soft(),css="footer {visibility: hidden}", title="
                 )
                 modeldosyapc.upload(download_from_pc, inputs=[modeldosyapc], outputs=[downloadoutput])
 
-            with gr.Group():
-                with gr.Column():
-                    gr.Markdown("Vokal dosyanızın adında hiçbir şekilde Türkçe karakter ve boşluk bulunmasın.")
-                    vocalaudiofile = gr.File(
-                        file_types=[".mp3", ".wav", ".m4a"],
-                        label="Vokal dosyasını yükle",
-                        show_label=True
-                    )
-                    vocalaudiofileoutput = gr.Textbox(
-                        label="Log kayıtları",
-                        interactive=False
-                    )
-                    vocalaudiofile.upload(save_to_wav, inputs=[vocalaudiofile], outputs=[vocalaudiofileoutput])
-
-            gr.Markdown("Burada bulunan içe aktarma işlemleri tamamlandıktan sonra Ses dönüştürme sayfasından 'Model ve ses dosyalarını yenile' butonuna basmalısınız.")
         with gr.TabItem("Dışarı aktar"):
             with gr.Column():
                 gr.Markdown("Eğitilen modellerin arşive alıp Google Drive'a aktartabilirsiniz.")
