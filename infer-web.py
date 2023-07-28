@@ -2044,8 +2044,8 @@ def datasetcreate(dataset_name, auto_delete_original_acapella=True, save_to_driv
 
 
     if auto_delete_original_acapella:
-        shutil.rmtree('/EasyDataset')
-        os.makedirs('/EasyDataset', exist_ok=True)
+        shutil.rmtree('/content/EasyDataset')
+        os.makedirs('/content/EasyDataset', exist_ok=True)
     os.chdir("../RVCCAB")
 
     return(f"Dataset buraya kaydedildi: /content/dataset/{dataset_name} (Lütfen bu yolu kopyalayın sesi eğitirken lazım olacak.)")
