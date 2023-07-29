@@ -121,7 +121,7 @@ if if_gpu_ok and len(gpu_infos) > 0:
     gpu_info = "\n".join(gpu_infos)
     default_batch_size = min(mem) // 2
 else:
-    gpu_info = i18n("很遗憾您这没有能用的显卡来支持您训练")
+    gpu_info ="Maalesef, algılanan bir GPU biriminiz yok."
     default_batch_size = 1
 gpus = "-".join([i[0] for i in gpu_infos])
 
@@ -2046,7 +2046,7 @@ def datasetcreate(dataset_name, auto_delete_original_acapella=True, save_to_driv
     if auto_delete_original_acapella:
         shutil.rmtree('/content/EasyDataset')
         os.makedirs('/content/EasyDataset', exist_ok=True)
-    os.chdir("../RVCCAB")
+    os.chdir("/content/RVCCAB")
 
     return(f"Dataset buraya kaydedildi: /content/dataset/{dataset_name} (Lütfen bu yolu kopyalayın sesi eğitirken lazım olacak.)")
 
@@ -2205,10 +2205,9 @@ with gr.Blocks(theme=gr.themes.Base(),css=css, title="RVC.CAB RVC WEB UI",favico
                             visible=False
                         )
 
-                        gr.Markdown("Vokal dosyanızın adında hiçbir şekilde Türkçe karakter ve boşluk bulunmasın.")
                         vocalaudiofile = gr.File(
                             file_types=[".mp3", ".wav", ".m4a"],
-                            label="Vokal dosyasını yükle",
+                            label="Vokal dosyasını yükle (Boşluk ve Türkçe karakter içermesin)",
                             show_label=True
                         )
                         vocalaudiofileoutput = gr.Textbox(
